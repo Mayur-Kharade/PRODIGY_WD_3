@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="background"></div>
+    <div class="container">
+        <div class="title">Mayur's Gaming Zone<br>Tic-Tac-Toe</div>
+        <div id="board"></div>
+        <div class="message" id="message"></div>
+    </div>
+<script>
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+    const cells = Array.from({ length: 9 });
+
+    let currentPlayer = 'X';
+    let gameBoard = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+
+    function renderBoard() {
+        board.innerHTML = '';
+        cells.forEach((_, index) => {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.textContent = gameBoard[index];
+            cell.addEventListener('click', () => handleCellClick(index));
+            board.appendChild(cell);
+        });
+    }
+
+    function handleCellClick(index) {
+        if (gameBoard[index] === '' && gameActive) {
+            gameBoard[index] = currentPlayer;
+            renderBoard();
+            if (checkWinner()) {
+                endGame(`Player ${currentPlayer} wins!`);
+            } else if (isBoardFull()) {
+                endGame("It's a tie!");
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                if (currentPlayer === 'O' && gameActive) {
+                    setTimeout(makeAIMove, 500);
+                }
+            }
+        }
+    }
+
+    function makeAIMove() {
+        const emptyCells = cells.filter((cell, index) => gameBoard[index] === '');
+        if (emptyCells.length > 0) {
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            handleCellClick(emptyCells[randomIndex]);
+        }
+    }
+
+    function checkWinner() {
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6]             // Diagonals
+        ];
+
+        for (const pattern of winPatterns) {
+            const [a, b, c] = pattern;
+            if (gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function isBoardFull() {
+        return gameBoard.every(cell => cell !== '');
+    }
+
+    function endGame(msg) {
+        gameActive = false;
+        message.textContent = msg;
+        message.style.opacity = '1';
+    }
+
+    renderBoard();
+</script>
+
+</body>
+</html>
